@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+	{% if user_id == videoGame.creator_id %}
+
+		<div class="row">
+			<div class="col-md-11 col-md-offset-1">
+				<h1>Edit Video Game</h1>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 col-md-offset-1">
+				<form action="#" method = "post">
+					<div class="form-group">
+						<label for="title">Title:</label>
+						<input type ="text" maxlength="250" class="form-control" name="title" value="{{videoGame.title }}">
+
+						<label for="description">Description:</label>
+						<textarea class="form-control" maxlength="500" rows="3" name="description">{{videoGame.description}}</textarea>
+
+						<label for="boxart">Box Art:</label>
+						<div class="input-group">
+							<div class="input-group-addon"></div>
+							<input type ="text" maxlength="250" class="form-control" name="boxart" value="{{videoGame.boxart}}">
+						</div>
+      					<label for="genre">Genre (select one):</label>
+      					<select class="form-control" id="genre" name="genre">
+      						{% for genre in genres %}
+      							{% if genre.name == videoGame.genre.name %}
+        							<option value="{{genre.id}}" selected="selected">{{genre.name}}</option>
+        						{% else %}
+        							<option value="{{genre.id}}">{{genre.name}}</option>
+        						{% endif %}
+        					{% endfor %}
+      					</select>
+						<input type="submit" name="submit" class="btn btn-default" value="Save">
+						<input type="submit" name="submit" class="btn btn-default delete" value="Cancel">
+					</div>
+				</form>
+			</div>
+		</div>
+	{% elif user_id == 0 %}
+		<div>Access Denied.  Click the Google Sign in button to log into an existing Google account or to create one!</div>
+	{% else %}
+		<div>Access Denied.  You are not the creator of this game.</div>
+	{% endif %}
+{% endblock %}
