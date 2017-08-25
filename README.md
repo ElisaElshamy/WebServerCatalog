@@ -6,27 +6,8 @@ available in this version and will be added at a later time.
 
 # Install
 
-Make sure you have all of the following libraries installed:
-
-```
-import random
-import string
-import json
-import httplib2
-import requests
-from sqlalchemy import create_engine, asc, desc
-from sqlalchemy.orm import sessionmaker
-from database_setup import Base, User, Genre, Games
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from flask import session as login_session
-from flask import make_response
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.client import FlowExchangeError
-```
-
-then run ```python database_setup.py``` to create the empty database videogames.db and 
-```python application.py``` from the catalog directory to start the site.  Go to your 
-browser and visit http://localhost:5000 to see the home page and login.
+Go to your browser and visit http://ec2-34-205-92-238.compute-1.amazonaws.com/ to see the 
+home page and login.
 
 # How to use
 
@@ -40,11 +21,60 @@ protecting the data you enter on this site.
 # Development
 
 Video Game Catalog is a Python project that uses Flask and SQLAlchemy.  Authentication is 
-secured using oauth 2.0 and Google's services. 
+secured using oauth 2.0 and Google's services.
 
-## Libraries
+Video Game Catalog is hosted on an Amazon Lightsail server installed with Ubuntu.  To 
+configure the app to be served via Apache's mod_wsgi a .wsgi file was created.  This file
+is located in the /FlaskApp directory and contains the following contents:
+
+```
+import sys
+import logging
+
+#Expand Python classes path with your app's path
+sys.path.insert(0, "/var/www/FlaskApp")
+
+from ItemCatalog import app as application
+application.secret_key = 'super_secret_key'
+``` 
+
+Where ```ItemCatalog``` is the directory inside FlaskApp containing the app's files.
+The main python file must be renamed to ```__init__.py```
+
+Then in the ```/etc/apache2/sites-available/catalog.conf``` file the following was added:
+
+```
+<VirtualHost *:80>
+                ServerName mywebsite.com
+                ServerAdmin admin@mywebsite.com
+                WSGIScriptAlias / /var/www/FlaskApp/catalog.wsgi
+                <Directory /var/www/FlaskApp/>
+                        Order allow,deny
+                        Allow from all
+                </Directory>
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+                LogLevel warn
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+Then the default .conf was disabled and the catalog.conf file was enabled using:
+```
+sudo a2dissite 000-default.conf
+sudo a2ensite catalog.conf
+```
+Apache was then set to restart using: 
+
+```sudo apache2ctl restart```
+
+
+## Libraries & Software
 
 - **Python 2.7.12**
 - **Flask 0.9** - http://flask.pocoo.org
 - **SQLAlchemy 1.1.11** - http://www.sqlalchemy.org
 - **OAuth 2.0 Client** - http://github.com/google/oauth2client
+- **Amazon Lightsail** - https://amazonlightsail.com/
+- **Apache** - https://www.apache.org/
+- **mod_wsgi** - https://modwsgi.readthedocs.io/en/develop/
+- **PostgreSQL** - https://www.postgresql.org/
